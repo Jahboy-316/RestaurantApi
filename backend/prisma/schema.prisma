@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  password     String
+  role         Role          @default(CUSTOMER)
+  createdAt    DateTime      @default(now())
+  reservations Reservation[]
+  orders       Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  menuItems MenuItem[]
+
+  @@map("categories")
+}
+
+model MenuItem {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal     @db.Decimal(10, 2)
+  isAvailable Boolean     @default(true)
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+
+  @@map("menu_items")
+}
+
+model RestaurantTable {
+  id           Int           @id @default(autoincrement())
+  tableNumber  Int           @unique
+  capacity     Int
+  isAvailable  Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  reservations Reservation[]
+
+  @@map("restaurant_tables")
+}
+
+model Reservation {
+  id              Int               @id @default(autoincrement())
+  customerId      Int
+  customer        User              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tableId         Int
+  table           RestaurantTable   @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  reservationDate DateTime
+  status          ReservationStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+
+  @@map("reservations")
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  customerId  Int
+  customer    User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId Int
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+  quantity   Int
+  price      Decimal  @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
