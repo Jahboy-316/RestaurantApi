@@ -28,6 +28,12 @@ app.get("/health", (req, res) => {
   });
 });
 
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://gourmethaven-restaurant-mox25zyxm-jahdev3.vercel.app/"
+}));
+
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
