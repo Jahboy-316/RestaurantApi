@@ -4,6 +4,7 @@ import { getMenuItems, createMenuItem, updateMenuItem, updateMenuItemAvailabilit
 import { createOrder, getOrders, cancelOrder, updateOrderStatus } from "./api/orders.js";
 import { getTables, createTable, updateTable, updateTableAvailability, deleteTable } from "./api/tables.js";
 import { createReservation, getReservations, cancelReservation, updateReservationStatus } from "./api/reservations.js";
+import { animate, inView } from "motion";
 
 function getStoredCart() {
   try {
@@ -50,6 +51,8 @@ const navReservationsBtn = document.getElementById("navReservationsBtn");
 const navAdminBtn = document.getElementById("navAdminBtn");
 const managementNavLabel = document.getElementById("managementNavLabel");
 const navCartBtn = document.getElementById("navCartBtn");
+const primaryNav = document.getElementById("primaryNav");
+const mobileNavToggle = document.getElementById("mobileNavToggle");
 const cartCountBadge = document.getElementById("cartCountBadge");
 const toastContainer = document.getElementById("toastContainer");
 
@@ -62,6 +65,8 @@ const adminSection = document.getElementById("adminSection");
 
 // Menu & Cart
 const heroBookTableBtn = document.getElementById("heroBookTableBtn");
+const storyBookTableBtn = document.getElementById("storyBookTableBtn");
+const experienceBookTableBtn = document.getElementById("experienceBookTableBtn");
 const categoryButtonsContainer = document.getElementById("categoryButtonsContainer");
 const menuSearchInput = document.getElementById("menuSearchInput");
 const itemsCountLabel = document.getElementById("itemsCountLabel");
@@ -241,6 +246,24 @@ function getStatusBadgeClass(status) {
   }
 }
 
+function closeMobileNavigation() {
+  primaryNav.classList.remove("is-open");
+  mobileNavToggle.setAttribute("aria-expanded", "false");
+  mobileNavToggle.setAttribute("aria-label", "Open navigation");
+}
+
+function initializeMotion() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  inView(".reveal-on-scroll", (element) => {
+    animate(
+      element,
+      { opacity: [0, 1], y: [26, 0] },
+      { duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }
+    );
+  });
+}
+
 // ================= View Navigation =================
 function switchView(viewName) {
   const isManagementUser = state.user && (state.user.role === "STAFF" || state.user.role === "ADMIN");
@@ -261,34 +284,39 @@ function switchView(viewName) {
 
   // Reset nav styles
   [navMenuBtn, navBookTableBtn, navOrdersBtn, navReservationsBtn].forEach((btn) => {
-    btn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100";
+    btn.className = "nav-link";
   });
   if (isManagementUser) {
     document.querySelectorAll("[data-customer-nav]").forEach((element) => element.classList.add("hidden"));
   }
-  navAdminBtn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-purple-50 text-purple-700 hover:bg-purple-100 flex items-center gap-1";
+  navAdminBtn.className = "nav-link";
   if (!isManagementUser) navAdminBtn.classList.add("hidden");
 
   if (viewName === "menu") {
     menuSection.classList.remove("hidden");
-    navMenuBtn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-amber-50 text-amber-700";
+    navMenuBtn.className = "nav-link is-active";
   } else if (viewName === "bookTable") {
     bookTableSection.classList.remove("hidden");
-    navBookTableBtn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-amber-50 text-amber-700";
+    navBookTableBtn.className = "nav-link is-active";
     initBookingFormDefaultDate();
     loadTablesForBooking();
   } else if (viewName === "orders") {
     ordersSection.classList.remove("hidden");
-    navOrdersBtn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-amber-50 text-amber-700";
+    navOrdersBtn.className = "nav-link is-active";
     loadOrders();
   } else if (viewName === "reservations") {
     reservationsSection.classList.remove("hidden");
-    navReservationsBtn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-amber-50 text-amber-700";
+    navReservationsBtn.className = "nav-link is-active";
     loadReservations();
   } else if (viewName === "admin") {
     adminSection.classList.remove("hidden");
-    navAdminBtn.className = "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors bg-purple-600 text-white shadow-xs flex items-center gap-1";
+    navAdminBtn.className = "nav-link is-active";
     loadAdminData();
+  }
+  closeMobileNavigation();
+  const activeSection = document.getElementById(`${viewName}Section`);
+  if (activeSection && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    animate(activeSection, { opacity: [0.72, 1], y: [8, 0] }, { duration: 0.35, ease: "easeOut" });
   }
 }
 
@@ -435,6 +463,9 @@ function openAuthModal(mode = "login") {
   }
 
   authModal.classList.remove("hidden");
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    animate(authModal.querySelector(".auth-dialog"), { opacity: [0, 1], y: [14, 0], scale: [0.985, 1] }, { duration: 0.28, ease: [0.22, 0.61, 0.36, 1] });
+  }
   authEmailInput.focus();
 }
 
@@ -510,47 +541,63 @@ async function loadMenuItems() {
   }
 }
 
+function getMenuImage(item, index) {
+  const itemDescription = `${item.name} ${item.category?.name || ""}`.toLowerCase();
+  const imageByType = [
+    { match: /steak|beef|ribeye/, id: "photo-1546833999-b9f581a1996d" },
+    { match: /pasta|noodle|risotto|ravioli/, id: "photo-1473093295043-cdd812d0e601" },
+    { match: /salad|vegetarian|vegan|greens|vegetable/, id: "photo-1512621776951-a57141f2eefd" },
+    { match: /dessert|cake|chocolate|sweet|tart/, id: "photo-1488477181946-6428a0291777" },
+    { match: /seafood|fish|salmon|shrimp|prawn/, id: "photo-1519708227418-c8fd9a32b7a2" },
+    { match: /pizza|flatbread/, id: "photo-1513104890138-7c749659a591" },
+    { match: /burger|sandwich/, id: "photo-1568901346375-23c9450c58cd" },
+    { match: /coffee|espresso|cold brew/, id: "photo-1461023058943-07fcbe16d735" },
+    { match: /lemonade|juice|tea|drink|beverage/, id: "photo-1470337458703-46ad1756a187" },
+    { match: /chicken|poultry/, id: "photo-1532550907401-a500c9a57435" }
+  ];
+  const match = imageByType.find(({ match: pattern }) => pattern.test(itemDescription));
+  const imageId = match?.id || [
+    "photo-1504674900247-0877df9cc836",
+    "photo-1547592180-85f173990554",
+    "photo-1547592166-23ac45744acd"
+  ][index % 3];
+
+  return `https://images.unsplash.com/${imageId}?auto=format&fit=crop&w=900&q=84`;
+}
+
 function renderMenuGrid(items) {
   menuGrid.innerHTML = "";
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     const card = document.createElement("div");
-    card.className = "bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between hover:border-amber-300 transition-all";
+    card.className = "food-card";
 
     const isAvailable = item.isAvailable;
     const categoryName = item.category ? item.category.name : "Specialty";
 
     card.innerHTML = `
-      <div>
-        <div class="flex items-start justify-between gap-2 mb-1.5">
-          <span class="text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-            ${escapeHtml(categoryName)}
-          </span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${
-            isAvailable ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"
-          }">
-            ${isAvailable ? "Available" : "Sold Out"}
-          </span>
+      <div class="food-image-wrap">
+        <img src="${getMenuImage(item, index)}" alt="${escapeHtml(item.name)} prepared at Gourmet Haven" loading="lazy" decoding="async" />
+      </div>
+      <div class="food-card-content">
+        <div class="food-topline">
+          <span class="food-category">${escapeHtml(categoryName)}</span>
+          <span class="food-availability ${isAvailable ? "" : "is-sold-out"}">${isAvailable ? "Available today" : "Currently unavailable"}</span>
         </div>
-        <h4 class="font-bold text-slate-900 text-base leading-snug">${escapeHtml(item.name)}</h4>
-        <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+        <h4>${escapeHtml(item.name)}</h4>
+        <p class="food-description">
           ${escapeHtml(item.description || "Freshly made to order with authentic seasonal ingredients.")}
         </p>
-      </div>
-
-      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-        <span class="font-extrabold text-slate-900 text-base">${formatPrice(item.price)}</span>
+        <div class="food-bottomline">
+          <span class="food-price">${formatPrice(item.price)}</span>
         <button
-          class="add-to-cart-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 ${
-            isAvailable
-              ? "bg-amber-600 hover:bg-amber-700 text-white shadow-xs cursor-pointer"
-              : "bg-slate-100 text-slate-400 cursor-not-allowed"
-          }"
+          class="add-to-cart-btn"
           data-item-id="${item.id}"
           ${!isAvailable ? "disabled" : ""}
         >
-          <span>+ Add</span>
+          <span aria-hidden="true">+</span> Add to bag
         </button>
+        </div>
       </div>
     `;
 
@@ -560,6 +607,9 @@ function renderMenuGrid(items) {
     }
 
     menuGrid.appendChild(card);
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      animate(card, { opacity: [0, 1], y: [16, 0] }, { duration: 0.45, delay: Math.min(index * 0.06, 0.3), ease: [0.22, 0.61, 0.36, 1] });
+    }
   });
 }
 
@@ -603,10 +653,10 @@ function updateCartUI() {
 
   if (items.length === 0) {
     cartItemsList.innerHTML = `
-      <div id="cartEmptyState" class="py-8 text-center text-slate-400">
-        <p class="text-2xl mb-1">🛒</p>
-        <p class="text-sm font-medium text-slate-600">Your cart is empty</p>
-        <p class="text-xs text-slate-400 mt-1">Select items from the menu to start your order.</p>
+      <div id="cartEmptyState" class="cart-empty-state py-8 text-center text-slate-400">
+        <span class="empty-plate-mark" aria-hidden="true"></span>
+        <p class="text-sm font-medium text-slate-600">Your bag is taking a breather.</p>
+        <p class="text-xs text-slate-400 mt-1">Choose something from the menu to begin.</p>
       </div>
     `;
     cartSubtotalText.textContent = "$0.00";
@@ -626,22 +676,22 @@ function updateCartUI() {
     subtotal += itemTotal;
 
     const row = document.createElement("div");
-    row.className = "py-2.5 flex items-center justify-between gap-2 text-sm";
+    row.className = "cart-item-row py-2.5 flex items-center justify-between gap-2 text-sm";
     row.innerHTML = `
       <div class="flex-1 min-w-0 pr-2">
-        <p class="font-semibold text-slate-800 text-xs truncate">${escapeHtml(item.name)}</p>
-        <p class="text-[11px] text-slate-400">${formatPrice(item.price)} each</p>
+        <p class="cart-item-name font-semibold text-slate-800 text-xs truncate">${escapeHtml(item.name)}</p>
+        <p class="cart-item-unit text-[11px] text-slate-400">${formatPrice(item.price)} each</p>
       </div>
-      <div class="flex items-center gap-1.5">
-        <button class="qty-btn-minus w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">
+      <div class="cart-quantity flex items-center gap-1.5">
+        <button class="qty-btn-minus w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center" aria-label="Remove one ${escapeHtml(item.name)}">
           -
         </button>
         <span class="w-6 text-center text-xs font-semibold text-slate-800">${quantity}</span>
-        <button class="qty-btn-plus w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">
+        <button class="qty-btn-plus w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center" aria-label="Add one ${escapeHtml(item.name)}">
           +
         </button>
       </div>
-      <span class="font-bold text-slate-900 text-xs w-14 text-right">${formatPrice(itemTotal)}</span>
+      <span class="cart-item-total font-bold text-slate-900 text-xs w-14 text-right">${formatPrice(itemTotal)}</span>
     `;
 
     row.querySelector(".qty-btn-minus").addEventListener("click", () => updateCartItemQuantity(item.id, -1));
@@ -761,7 +811,7 @@ function renderBookingTablesGrid(tables) {
     const isAvailable = table.isAvailable;
 
     const card = document.createElement("div");
-    card.className = `p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+    card.className = `reservation-table-card p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
       !isAvailable
         ? "bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed"
         : isSelected
@@ -771,22 +821,22 @@ function renderBookingTablesGrid(tables) {
 
     card.innerHTML = `
       <div class="flex items-center justify-between mb-3">
-        <span class="font-extrabold text-base text-slate-900">Table #${table.tableNumber}</span>
-        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${
+        <span class="table-card-number font-extrabold text-base text-slate-900">Table #${table.tableNumber}</span>
+        <span class="table-card-status text-[10px] font-bold px-2 py-0.5 rounded-full ${
           isAvailable ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"
         }">
           ${isAvailable ? "Available" : "Reserved"}
         </span>
       </div>
       <div class="space-y-1 text-xs text-slate-600">
-        <p class="flex items-center gap-1.5 font-medium">
+        <p class="table-card-capacity flex items-center gap-1.5 font-medium">
           <span>👥 Capacity:</span>
           <span class="font-bold text-slate-800">${table.capacity} Guests</span>
         </p>
-        <p class="text-[11px] text-slate-400">Indoor dining area</p>
+        <p class="text-[11px] text-slate-400">A two-hour dining window</p>
       </div>
       <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
-        <span class="text-xs font-bold ${isSelected ? "text-amber-700" : "text-slate-500"}">
+        <span class="table-card-action text-xs font-bold ${isSelected ? "text-amber-700" : "text-slate-500"}">
           ${!isAvailable ? "Unavailable" : isSelected ? "✓ Selected Table" : "Select"}
         </span>
       </div>
@@ -1481,12 +1531,29 @@ async function loadAdminOrders() {
 function setupEventListeners() {
   // Navigation
   brandLogo.addEventListener("click", () => switchView(state.user?.role === "ADMIN" || state.user?.role === "STAFF" ? "admin" : "menu"));
+  brandLogo.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      switchView(state.user?.role === "ADMIN" || state.user?.role === "STAFF" ? "admin" : "menu");
+    }
+  });
+  mobileNavToggle.addEventListener("click", () => {
+    const isOpen = mobileNavToggle.getAttribute("aria-expanded") === "true";
+    mobileNavToggle.setAttribute("aria-expanded", String(!isOpen));
+    mobileNavToggle.setAttribute("aria-label", isOpen ? "Open navigation" : "Close navigation");
+    primaryNav.classList.toggle("is-open", !isOpen);
+    if (!isOpen && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      animate(primaryNav, { opacity: [0, 1], y: [-8, 0] }, { duration: 0.25, ease: "easeOut" });
+    }
+  });
   navMenuBtn.addEventListener("click", () => switchView("menu"));
   navBookTableBtn.addEventListener("click", () => switchView("bookTable"));
   navOrdersBtn.addEventListener("click", () => switchView("orders"));
   navReservationsBtn.addEventListener("click", () => switchView("reservations"));
   navAdminBtn.addEventListener("click", () => switchView("admin"));
   heroBookTableBtn.addEventListener("click", () => switchView("bookTable"));
+  storyBookTableBtn.addEventListener("click", () => switchView("bookTable"));
+  experienceBookTableBtn.addEventListener("click", () => switchView("bookTable"));
   viewMyBookingsQuickBtn.addEventListener("click", () => switchView("reservations"));
   newReservationBtn.addEventListener("click", () => switchView("bookTable"));
   bookTableNowBtn.addEventListener("click", () => switchView("bookTable"));
@@ -1720,6 +1787,7 @@ function setupEventListeners() {
 
 // ================= App Initialization =================
 async function init() {
+  initializeMotion();
   updateAuthWidget();
   updateCartUI();
   setupEventListeners();
