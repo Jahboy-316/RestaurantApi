@@ -2332,6 +2332,217 @@ img {
   }
 }
 
+/* Consistent controls and transitions across the ordering and management views. */
+.site-main button:not(.nav-link):not(.category-btn):not(.text-link):not(.mobile-nav-toggle):not(.qty-btn-minus):not(.qty-btn-plus):not(.auth-close):not(.auth-tabs button) {
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.site-main button:not(:disabled):not(.nav-link):not(.category-btn):not(.text-link):not(.mobile-nav-toggle):not(.qty-btn-minus):not(.qty-btn-plus):not(.auth-close):not(.auth-tabs button):hover {
+  transform: translateY(-1px);
+}
+
+.site-main button.bg-amber-600:not(:disabled) {
+  border: 1px solid var(--forest) !important;
+  border-radius: 0 !important;
+  background: var(--forest) !important;
+  color: white !important;
+  box-shadow: none !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+
+.site-main button.bg-amber-600:not(:disabled):hover {
+  border-color: #29342d !important;
+  background: #29342d !important;
+}
+
+#newReservationBtn,
+#goToMenuBtn,
+#bookTableNowBtn,
+#menuItemSubmitBtn,
+#createTableSubmitBtn,
+#createCategoryForm button[type="submit"] {
+  min-height: 44px;
+  border: 1px solid var(--forest) !important;
+  border-radius: 0 !important;
+  background: var(--forest) !important;
+  color: white !important;
+  box-shadow: none !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+
+#newReservationBtn:hover,
+#goToMenuBtn:hover,
+#bookTableNowBtn:hover,
+#menuItemSubmitBtn:hover,
+#createTableSubmitBtn:hover,
+#createCategoryForm button[type="submit"]:hover {
+  border-color: #29342d !important;
+  background: #29342d !important;
+}
+
+#menuItemCancelEditBtn,
+#refreshOrdersBtn,
+#refreshAdminMenuBtn,
+#refreshAdminTablesBtn,
+#refreshAdminOrdersBtn,
+#viewMyBookingsQuickBtn,
+#adminTabMenu,
+#adminTabCategories,
+#adminTabTables,
+#adminTabReservations,
+#adminTabOrders {
+  border: 1px solid #d2ccc1 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #626057 !important;
+  box-shadow: none !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .55px;
+  text-transform: uppercase;
+}
+
+#refreshAdminMenuBtn,
+#refreshAdminTablesBtn,
+#refreshAdminOrdersBtn {
+  border-color: transparent !important;
+  color: var(--clay) !important;
+}
+
+#menuItemCancelEditBtn:hover,
+#refreshOrdersBtn:hover,
+#viewMyBookingsQuickBtn:hover,
+#adminTabMenu:hover,
+#adminTabCategories:hover,
+#adminTabTables:hover,
+#adminTabReservations:hover,
+#adminTabOrders:hover {
+  border-color: var(--forest) !important;
+  background: #e9eee6 !important;
+  color: var(--forest) !important;
+}
+
+#refreshAdminMenuBtn:hover,
+#refreshAdminTablesBtn:hover,
+#refreshAdminOrdersBtn:hover {
+  background: #f1ede5 !important;
+  color: var(--forest) !important;
+}
+
+#adminTabMenu[class*="bg-white"],
+#adminTabCategories[class*="bg-white"],
+#adminTabTables[class*="bg-white"],
+#adminTabReservations[class*="bg-white"],
+#adminTabOrders[class*="bg-white"] {
+  border-color: var(--forest) !important;
+  background: var(--forest) !important;
+  color: white !important;
+}
+
+#cancel-order-btn,
+.cancel-order-btn,
+.cancel-res-btn,
+.delete-menu-item-btn,
+.delete-category-btn,
+.delete-table-btn {
+  border: 1px solid #dfc9c0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #955744 !important;
+  box-shadow: none !important;
+  letter-spacing: .4px;
+}
+
+.cancel-order-btn:hover,
+.cancel-res-btn:hover,
+.delete-menu-item-btn:hover,
+.delete-category-btn:hover,
+.delete-table-btn:hover {
+  border-color: #955744 !important;
+  background: #f5eae5 !important;
+  color: #7d4334 !important;
+}
+
+.edit-menu-item-btn,
+.toggle-menu-item-btn,
+.rename-category-btn,
+.toggle-avail-btn,
+.edit-table-btn {
+  border: 1px solid #d2ccc1 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #55544c !important;
+  box-shadow: none !important;
+}
+
+.edit-menu-item-btn:hover,
+.toggle-menu-item-btn:hover,
+.rename-category-btn:hover,
+.toggle-avail-btn:hover,
+.edit-table-btn:hover {
+  border-color: var(--forest) !important;
+  background: #e9eee6 !important;
+  color: var(--forest) !important;
+}
+
+#menuSection input,
+#bookTableSection input,
+#adminSection input,
+#adminSection select,
+#adminSection textarea,
+#ordersSection select,
+#reservationsSection select {
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+#menuSection input:focus,
+#bookTableSection input:focus,
+#adminSection input:focus,
+#adminSection select:focus,
+#adminSection textarea:focus,
+#ordersSection select:focus,
+#reservationsSection select:focus {
+  border-color: var(--forest) !important;
+  box-shadow: 0 0 0 2px rgb(56 73 62 / 12%) !important;
+}
+
+#adminMenuPanel:not(.hidden),
+#adminCategoriesPanel:not(.hidden),
+#adminTablesPanel:not(.hidden),
+#adminReservationsPanel:not(.hidden),
+#adminOrdersPanel:not(.hidden) {
+  animation: panel-arrive .3s cubic-bezier(.22, .61, .36, 1) both;
+}
+
+#editTableModal #closeEditTableModalBtn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50% !important;
+  background: transparent;
+  color: #77766e;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+
+#editTableModal #closeEditTableModalBtn:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: white;
+}
+
+@keyframes panel-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

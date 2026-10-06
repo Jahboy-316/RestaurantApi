@@ -40,6 +40,8 @@ const state = {
   authModalMode: "login"
 };
 
+const modalTransitionTokens = new WeakMap();
+
 // ================= DOM Elements =================
 // Header & Navigation
 const brandLogo = document.getElementById("brandLogo");
@@ -199,6 +201,37 @@ function showToast(message, type = "success") {
     toast.classList.add("opacity-0", "translate-y-2");
     setTimeout(() => toast.remove(), 300);
   }, 4000);
+}
+
+function transitionModal(modal, isOpen) {
+  const token = (modalTransitionTokens.get(modal) || 0) + 1;
+  modalTransitionTokens.set(modal, token);
+  const panel = modal.firstElementChild;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!isOpen && reducedMotion) {
+    modal.classList.add("hidden");
+    return;
+  }
+
+  if (isOpen) {
+    modal.classList.remove("hidden");
+  }
+
+  if (reducedMotion) return;
+
+  const animation = isOpen
+    ? { opacity: [0, 1], y: [14, 0], scale: [0.985, 1] }
+    : { opacity: [1, 0], y: [0, 10], scale: [1, 0.99] };
+
+  animate(panel, animation, {
+    duration: isOpen ? 0.28 : 0.2,
+    ease: [0.22, 0.61, 0.36, 1]
+  }).then(() => {
+    if (!isOpen && modalTransitionTokens.get(modal) === token) {
+      modal.classList.add("hidden");
+    }
+  });
 }
 
 function escapeHtml(str) {
@@ -462,15 +495,12 @@ function openAuthModal(mode = "login") {
     authSubmitBtn.textContent = "Create Account";
   }
 
-  authModal.classList.remove("hidden");
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    animate(authModal.querySelector(".auth-dialog"), { opacity: [0, 1], y: [14, 0], scale: [0.985, 1] }, { duration: 0.28, ease: [0.22, 0.61, 0.36, 1] });
-  }
+  transitionModal(authModal, true);
   authEmailInput.focus();
 }
 
 function closeAuthModal() {
-  authModal.classList.add("hidden");
+  transitionModal(authModal, false);
 }
 
 // ================= Menu & Ordering =================
@@ -1364,7 +1394,7 @@ async function loadAdminTables() {
         editTableId.value = table.id;
         editTableNumber.value = table.tableNumber;
         editTableCapacity.value = table.capacity;
-        editTableModal.classList.remove("hidden");
+        transitionModal(editTableModal, true);
       });
 
       // Delete Table (Admin only)
@@ -1683,7 +1713,7 @@ function setupEventListeners() {
   });
 
   // Edit Table Modal Form (Admin)
-  closeEditTableModalBtn.addEventListener("click", () => editTableModal.classList.add("hidden"));
+  closeEditTableModalBtn.addEventListener("click", () => transitionModal(editTableModal, false));
   editTableForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = editTableId.value;
@@ -1693,7 +1723,7 @@ function setupEventListeners() {
     try {
       await updateTable(id, { tableNumber, capacity });
       showToast("Table updated successfully!");
-      editTableModal.classList.add("hidden");
+      transitionModal(editTableModal, false);
       loadAdminTables();
     } catch (err) {
       showToast(err.message, "error");
