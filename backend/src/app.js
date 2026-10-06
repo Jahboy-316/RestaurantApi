@@ -32,7 +32,7 @@ const cors = require("cors");
 
 const allowedOrigins = (
   process.env.CORS_ORIGIN ||
-  "https://gourmethaven-restaurant-mox25zyxm-jahdev3.vercel.app,http://localhost:3000,http://127.0.0.1:3000"
+  "https://gourmethaven-restaurant.vercel.app,http://localhost:3000,http://127.0.0.1:3000"
 )
   .split(",")
   .map((origin) => origin.trim().replace(/\/+$/, ""))
