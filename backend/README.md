@@ -56,5 +56,10 @@ This project demonstrates the end-to-end data flow of a modern web application:
 
 ---
 
+## Deployment configuration
+
+- **Frontend (Vercel):** Set the project root to `frontend`, build command to `npm run build`, and output directory to `dist`. Set `VITE_API_URL` to the backend origin, for example `https://your-api-host.example` (no path required). Vite embeds this value at build time, so redeploy after changing it.
+- **Backend (Render or another Node host):** Run from `backend` with `npm start`. Set `DATABASE_URL` to a reachable hosted PostgreSQL connection string, `JWT_SECRET` to a strong secret, and `CORS_ORIGIN` to the exact frontend origin (scheme and hostname, no trailing slash). Multiple origins can be comma-separated. Do not use `localhost` for the production database URL.
+- Apply Prisma migrations to the hosted database before using database-backed API routes.
 
 
